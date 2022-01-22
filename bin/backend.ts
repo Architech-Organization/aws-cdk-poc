@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { CampaignConstruct } from '../src/campaign/campaignConstruct';
-import {GatewayConstruct} from "../src/gateway/gatewayConstruct";
-import {BackendStack} from "../lib/backend-stack";
+import { BackendStack } from "../lib/backend-stack";
+import { CampaignStack } from '../services/campaign-service/campaignStack';
+import { GatewayStack } from '../support/gateway/gatewayStack';
 
 const app = new cdk.App();
 /*let campaignStack = new CampaignStack(app, 'CampaignStack', {
@@ -21,5 +21,13 @@ const app = new cdk.App();
 
   /!* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html *!/
 });*/
-new BackendStack(app, 'BackendStack', {
-});
+// new BackendStack(app, 'BackendStack', {
+// });
+
+const campaignStack = new CampaignStack(app, 'compaign-servie', {});
+
+
+const endpoints = [...campaignStack.lambdas,];
+
+new GatewayStack(app, 'Gateway', endpoints, {
+})
