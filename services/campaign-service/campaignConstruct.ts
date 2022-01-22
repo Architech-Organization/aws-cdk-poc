@@ -1,13 +1,13 @@
-import {RemovalPolicy} from 'aws-cdk-lib';
-import {Construct} from 'constructs';
-import {Runtime} from 'aws-cdk-lib/aws-lambda';
+import { RemovalPolicy } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import {NodejsFunction, NodejsFunctionProps} from "aws-cdk-lib/aws-lambda-nodejs";
-import {join} from "path";
+import { NodejsFunction, NodejsFunctionProps } from "aws-cdk-lib/aws-lambda-nodejs";
+import { join } from "path";
 
 export class CampaignConstruct extends Construct {
 
-  public readonly lambdas: { lambda: NodejsFunction, path: string , httpMethod: string }[] = [];
+  public readonly lambdas: { lambda: NodejsFunction, path: string, httpMethod: string }[] = [];
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -37,12 +37,12 @@ export class CampaignConstruct extends Construct {
     * Load lambdas
     * */
     const createCampaignLambda = new NodejsFunction(this, 'createCampaignFunction', {
-      entry: join(__dirname ,'lambdas/CreateCampaignFunction.ts'),
+      entry: join(__dirname, 'lambdas/CreateCampaignFunction.ts'),
       ...nodeJsFunctionProps,
     });
 
 
-    this.lambdas.push({lambda: createCampaignLambda, path: "campaigns", httpMethod: "POST"});
+    this.lambdas.push({ lambda: createCampaignLambda, path: "campaigns", httpMethod: "POST" });
 
     table.grantWriteData(createCampaignLambda);
 

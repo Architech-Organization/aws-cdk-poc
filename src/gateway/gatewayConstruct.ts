@@ -1,6 +1,6 @@
-import {Construct} from 'constructs';
-import {IResource, LambdaIntegration, MockIntegration, PassthroughBehavior, RestApi} from "aws-cdk-lib/aws-apigateway";
-import {CampaignConstruct} from "../campaign/campaignConstruct";
+import { Construct } from 'constructs';
+import { IResource, LambdaIntegration, MockIntegration, PassthroughBehavior, RestApi } from "aws-cdk-lib/aws-apigateway";
+import { CampaignConstruct } from '../../services/campaign-service/campaignConstruct';
 
 export class GatewayConstruct extends Construct {
   constructor(scope: Construct, id: string, props?: any) {
@@ -13,7 +13,7 @@ export class GatewayConstruct extends Construct {
       restApiName: 'el Service'
     });
 
-    campaignConstruct.lambdas.map(({lambda, path, httpMethod}) => {
+    campaignConstruct.lambdas.map(({ lambda, path, httpMethod }) => {
 
       // Integrate the Lambda functions with the API Gateway resource
       const lambdaIntegration = new LambdaIntegration(lambda);

@@ -1,5 +1,5 @@
 import * as AWS from 'aws-sdk';
-import {v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 const TABLE_NAME = process.env.TABLE_NAME || '';
 const PRIMARY_KEY = process.env.PRIMARY_KEY || '';
@@ -26,7 +26,7 @@ export const handler = async (event: any = {}): Promise<any> => {
     try {
         await db.put(params).promise();
         return { statusCode: 201, body: JSON.stringify(item) };
-    } catch (dbError) {
+    } catch (dbError: any) {
         const errorResponse = dbError.code === 'ValidationException' && dbError.message.includes('reserved keyword') ?
             DYNAMODB_EXECUTION_ERROR : RESERVED_RESPONSE;
         return { statusCode: 500, body: errorResponse };
