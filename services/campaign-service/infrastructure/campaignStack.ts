@@ -3,7 +3,7 @@ import { RemovalPolicy, StackProps } from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { join } from "path";
 import { Construct } from 'constructs';
-import { MicroServiceStack } from '../../common/MicroServiceStack';
+import { MicroServiceStack } from '../../../common/MicroServiceStack';
 
 export class CampaignStack extends MicroServiceStack {
 
@@ -18,7 +18,7 @@ export class CampaignStack extends MicroServiceStack {
       removalPolicy: RemovalPolicy.DESTROY, // NOT recommended for production code
     });
 
-    const entry = join(__dirname, 'lambdas/CreateCampaignFunction.ts');
+    const entry = join(__dirname, '../lambdas/CreateCampaignFunction.ts');
     const environment = {
       PRIMARY_KEY: 'campaignId',
       PARTITION_KEY: 'campaignType',

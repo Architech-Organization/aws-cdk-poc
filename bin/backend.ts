@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { BackendStack } from "../lib/backend-stack";
-import { CampaignStack } from '../services/campaign-service/campaignStack';
+import { CampaignStack } from '../services/campaign-service/infrastructure/campaignStack';
 import { GatewayStack } from '../support/gateway/gatewayStack';
+import { CognitoStack } from '../support/sso/CognitoStack';
 
 const app = new cdk.App();
 /*let campaignStack = new CampaignStack(app, 'CampaignStack', {
@@ -23,6 +23,8 @@ const app = new cdk.App();
 });*/
 // new BackendStack(app, 'BackendStack', {
 // });
+
+new CognitoStack(app, 'el-cognito', {});
 
 const campaignStack = new CampaignStack(app, 'compaign-servie', {});
 
