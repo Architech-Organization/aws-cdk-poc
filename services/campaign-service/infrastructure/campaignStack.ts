@@ -4,6 +4,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { join } from "path";
 import { Construct } from 'constructs';
 import { MicroServiceStack } from '../../../common/MicroServiceStack';
+import { LayerVersion } from 'aws-cdk-lib/aws-lambda';
 
 export class CampaignStack extends MicroServiceStack {
 

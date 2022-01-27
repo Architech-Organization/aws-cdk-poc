@@ -4,6 +4,7 @@ import * as cdk from 'aws-cdk-lib';
 import { CampaignStack } from '../services/campaign-service/infrastructure/campaignStack';
 import { GatewayStack } from '../support/gateway/gatewayStack';
 import { CognitoStack } from '../support/sso/CognitoStack';
+import { LambdaLayersStack } from '../common/LambdaLayersStack';
 
 const app = new cdk.App();
 /*let campaignStack = new CampaignStack(app, 'CampaignStack', {
@@ -23,6 +24,8 @@ const app = new cdk.App();
 });*/
 // new BackendStack(app, 'BackendStack', {
 // });
+
+// const lambdaLayers = new LambdaLayersStack(app, 'lambda-layers', {});
 
 new CognitoStack(app, 'el-cognito', {});
 

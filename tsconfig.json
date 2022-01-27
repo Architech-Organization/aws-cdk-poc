@@ -21,10 +21,15 @@
     "strictPropertyInitialization": false,
     "typeRoots": [
       "./node_modules/@types"
-    ]
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "/opt/nodejs/yup-utils": ["common/layers/yup-utils/nodejs/yup-utils"],
+    }
   },
   "exclude": [
     "node_modules",
+    "**/node_modules/*",
     "cdk.out"
-  ]
+  ],
 }
