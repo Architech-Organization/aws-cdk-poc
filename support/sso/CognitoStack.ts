@@ -3,8 +3,10 @@ import { aws_cognito as cognito, Duration, Stack, StackProps } from 'aws-cdk-lib
 
 export class CognitoStack extends Stack {
 
+
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id);
+
 
         const pool = new cognito.UserPool(this, 'eluserpool', {
             userPoolName: 'el-userpool',
@@ -15,6 +17,7 @@ export class CognitoStack extends Stack {
             },
             autoVerify: { email: true },
             standardAttributes: {
+
                 fullname: {
                     required: true,
                     mutable: false,

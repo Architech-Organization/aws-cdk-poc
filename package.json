@@ -23,6 +23,7 @@
     "uuid": "^8.3.2"
   },
   "dependencies": {
+    "@aws-cdk/aws-ssm": "^1.141.0",
     "aws-cdk-lib": "2.4.0",
     "constructs": "^10.0.0",
     "source-map-support": "^0.5.16"

@@ -25,12 +25,11 @@ const app = new cdk.App();
 // new BackendStack(app, 'BackendStack', {
 // });
 
-// const lambdaLayers = new LambdaLayersStack(app, 'lambda-layers', {});
+const lambdaLayers = new LambdaLayersStack(app, 'lambda-layers', {});
 
 new CognitoStack(app, 'el-cognito', {});
 
 const campaignStack = new CampaignStack(app, 'compaign-servie', {});
-
 
 const endpoints = [...campaignStack.lambdas,];
 

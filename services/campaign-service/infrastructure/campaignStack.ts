@@ -8,8 +8,6 @@ import { LayerVersion } from 'aws-cdk-lib/aws-lambda';
 
 export class CampaignStack extends MicroServiceStack {
 
-
-
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id);
 

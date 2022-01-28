@@ -1,2 +1,2 @@
 export * from 'yup';
-export const YUP_TEST = 900;
+export const YUP_TEST = 100;
