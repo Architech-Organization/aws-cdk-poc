@@ -13,13 +13,13 @@ const app = new cdk.App();
 
 new LambdaLayersStack(app, 'lambda-layers', {});
 
-new CognitoStack(app, 'el-cognito', {});
+const cognito = new CognitoStack(app, 'el-cognito', {});
 
 const campaignStack = new CampaignStack(app, 'compaign-servie', {});
 
 const endpoints = [...campaignStack.lambdas,];
 
-new GatewayStack(app, 'Gateway', endpoints, {
+new GatewayStack(app, 'Gateway', endpoints, cognito.userPool, {
 })
 
 

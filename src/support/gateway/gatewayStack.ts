@@ -1,13 +1,14 @@
 import { Construct } from 'constructs';
-import { IResource, LambdaIntegration, MockIntegration, PassthroughBehavior, RestApi } from "aws-cdk-lib/aws-apigateway";
+import { AuthorizationType, CognitoUserPoolsAuthorizer, IResource, LambdaIntegration, MockIntegration, PassthroughBehavior, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { IUserPool } from 'aws-cdk-lib/aws-cognito';
 
 export class GatewayStack extends Stack {
 
   private readonly endpoints: { lambda: NodejsFunction, path: string, httpMethod: string }[];
 
-  constructor(scope: Construct, id: string, endpoints: { lambda: NodejsFunction, path: string, httpMethod: string }[], props?: StackProps) {
+  constructor(scope: Construct, id: string, endpoints: { lambda: NodejsFunction, path: string, httpMethod: string }[], userPool: IUserPool, props?: StackProps) {
     super(scope, id);
 
     this.endpoints = endpoints;
@@ -16,6 +17,11 @@ export class GatewayStack extends Stack {
       restApiName: 'el Service'
     });
 
+    const auth = new CognitoUserPoolsAuthorizer(this, 'campaignAuthorizer', {
+      cognitoUserPools: [userPool]
+    });
+
+
     this.endpoints.map(({ lambda, path, httpMethod }) => {
 
       // Integrate the Lambda functions with the API Gateway resource
@@ -23,7 +29,10 @@ export class GatewayStack extends Stack {
 
       // add the integration to the API Gateway
       const employeesApi = api.root.addResource(path);
-      employeesApi.addMethod(httpMethod, lambdaIntegration);
+      employeesApi.addMethod(httpMethod, lambdaIntegration, {
+        authorizer: auth,
+        authorizationType: AuthorizationType.COGNITO,
+      });
       addCorsOptions(employeesApi);
 
     })
