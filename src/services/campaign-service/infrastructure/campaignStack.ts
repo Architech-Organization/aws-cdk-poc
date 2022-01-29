@@ -3,8 +3,7 @@ import { RemovalPolicy, StackProps } from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { join } from "path";
 import { Construct } from 'constructs';
-import { MicroServiceStack } from '../../../common/MicroServiceStack';
-import { LayerVersion } from 'aws-cdk-lib/aws-lambda';
+import { MicroServiceStack } from '../../../core/MicroServiceStack';
 
 export class CampaignStack extends MicroServiceStack {
 
