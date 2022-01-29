@@ -14,6 +14,12 @@ const RESERVED_RESPONSE = `Error: You're using AWS reserved keywords as attribut
 
 export const handler = async (event: any = {}): Promise<any> => {
 
+    console.log(`event ${JSON.stringify(event)}`)
+
+    if (event?.requestContext?.authorizer?.claims["cognito:groups"] != 'admin') {
+        return { statusCode: 403, body: 'Forbidden' };
+    }
+
     const schema = object().shape({
         name: string().required(),
     });
