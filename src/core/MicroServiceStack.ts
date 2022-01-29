@@ -20,7 +20,7 @@ export abstract class MicroServiceStack extends Stack {
 
         },
 
-        depsLockFilePath: join(__dirname, '../package-lock.json'),
+        depsLockFilePath: join(__dirname, '../../package-lock.json'),
         runtime: Runtime.NODEJS_14_X,
     }
 

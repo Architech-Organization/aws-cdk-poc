@@ -24,7 +24,8 @@
     ],
     "baseUrl": "./",
     "paths": {
-      "/opt/nodejs/yup-utils": ["common/layers/yup-utils/nodejs/yup-utils"],
+      "/opt/nodejs/yup-utils": ["src/core/layers/yup-utils/nodejs/yup-utils"],
+      
     }
   },
   "exclude": [

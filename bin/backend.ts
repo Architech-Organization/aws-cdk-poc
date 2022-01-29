@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-
 import { LambdaLayersStack } from '../src/core/LambdaLayersStack';
-import { CognitoStack } from 'src/support/sso/CognitoStack';
-import { CampaignStack } from 'src/services/campaign-service/infrastructure/campaignStack';
-import { GatewayStack } from 'src/support/gateway/gatewayStack';
+import { CognitoStack } from '../src/support/sso/CognitoStack';
+import { CampaignStack } from '../src/services/campaign-service/infrastructure/campaignStack';
+import { GatewayStack } from '../src/support/gateway/gatewayStack';
+
+
+
 
 const app = new cdk.App();
 
-const lambdaLayers = new LambdaLayersStack(app, 'lambda-layers', {});
+new LambdaLayersStack(app, 'lambda-layers', {});
 
 new CognitoStack(app, 'el-cognito', {});
 

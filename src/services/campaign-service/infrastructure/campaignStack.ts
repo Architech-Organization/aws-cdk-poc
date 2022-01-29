@@ -5,6 +5,7 @@ import { join } from "path";
 import { Construct } from 'constructs';
 import { MicroServiceStack } from '../../../core/MicroServiceStack';
 
+
 export class CampaignStack extends MicroServiceStack {
 
   constructor(scope: Construct, id: string, props?: StackProps) {

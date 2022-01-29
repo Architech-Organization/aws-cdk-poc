@@ -1,5 +1,5 @@
 
-import { App, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
+import { App, Stack, StackProps } from "aws-cdk-lib";
 import { Code, LayerVersion, Runtime } from "aws-cdk-lib/aws-lambda";
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 
@@ -15,7 +15,7 @@ export class LambdaLayersStack extends Stack {
             compatibleRuntimes: [
                 Runtime.NODEJS_14_X,
             ],
-            code: Code.fromAsset('common/layers/yup-utils'), ///Users/ridakaddir/WebstormProjects/el-cdk/backend/common/layers/yup-utils/nodejs/yup-utils.ts
+            code: Code.fromAsset('src/core/layers/yup-utils'), ///Users/ridakaddir/WebstormProjects/el-cdk/backend/common/layers/yup-utils/nodejs/yup-utils.ts
             description: 'Uses a 3rd party library yup',
         });
 
