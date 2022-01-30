@@ -29,7 +29,7 @@ export abstract class MicroServiceStack extends Stack {
         const yupParamName = '/layers/yup';
 
         // fetch the Arn from param store
-        const yupLayerArn = ssm.StringParameter.valueFromLookup(
+        const yupLayerArn = ssm.StringParameter.valueForStringParameter(
             this,
             yupParamName
         );
