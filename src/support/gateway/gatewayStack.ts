@@ -1,21 +1,13 @@
 import { Construct } from 'constructs';
-import { AuthorizationType, AwsIntegration, CognitoUserPoolsAuthorizer, Integration, IntegrationType, IResource, JsonSchemaType, JsonSchemaVersion, LambdaIntegration, MockIntegration, Model, PassthroughBehavior, RequestValidator, RestApi } from "aws-cdk-lib/aws-apigateway";
-import { Aws, Stack, StackProps } from 'aws-cdk-lib';
+import { AuthorizationType, CognitoUserPoolsAuthorizer, Integration, IResource, JsonSchemaType, JsonSchemaVersion, LambdaIntegration, MockIntegration, Model, PassthroughBehavior, RequestValidator, RestApi } from "aws-cdk-lib/aws-apigateway";
+import { Stack, StackProps } from 'aws-cdk-lib';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { IUserPool } from 'aws-cdk-lib/aws-cognito';
-import { EventBus, Rule } from 'aws-cdk-lib/aws-events';
-import { LogGroup } from 'aws-cdk-lib/aws-logs';
-import { CloudWatchLogGroup } from 'aws-cdk-lib/aws-events-targets';
-import { Effect, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { CfnIntegration, CfnRoute } from 'aws-cdk-lib/aws-apigatewayv2';
-import { RegionInfo } from 'aws-cdk-lib/region-info';
-
-
 export class GatewayStack extends Stack {
 
   private readonly endpoints: { lambda: NodejsFunction, path: string, httpMethod: string }[];
 
-  constructor(scope: Construct, id: string, endpoints: { lambda: NodejsFunction, path: string, httpMethod: string }[], userPool: IUserPool, props?: StackProps) {
+  constructor(scope: Construct, id: string, endpoints: { lambda: NodejsFunction, path: string, httpMethod: string }[], eventBridgeRestApiIntegration: Integration, userPool: IUserPool, props?: StackProps) {
     super(scope, id);
 
     this.endpoints = endpoints;
@@ -47,62 +39,14 @@ export class GatewayStack extends Stack {
       const lambdaIntegration = new LambdaIntegration(lambda);
 
       // add the integration to the API Gateway
-      const employeesApi = api.root.addResource(path);
-      employeesApi.addMethod(httpMethod, lambdaIntegration, {
+      const employeesResource = api.root.addResource(path);
+      employeesResource.addMethod(httpMethod, lambdaIntegration, {
         authorizer: auth,
         authorizationType: AuthorizationType.COGNITO,
       });
-      addCorsOptions(employeesApi);
+      addCorsOptions(employeesResource);
 
     })
-
-    const eventBus = new EventBus(this, 'MyEventBus', {
-      eventBusName: 'MyEventBus'
-    });
-
-    /* LOGGING */
-    const eventLoggerRule = new Rule(this, "EventLoggerRule", {
-      description: "Log all events",
-      eventPattern: { source: [`com.el.order`] },
-      eventBus: eventBus
-    });
-
-    const logGroup = new LogGroup(this, 'EventLogGroup', {
-      logGroupName: '/aws/events/MyEventBus',
-    });
-
-    eventLoggerRule.addTarget(new CloudWatchLogGroup(logGroup));
-
-
-    /* There's no Eventbridge integration available as CDK L2 yet, so we have to use L1 and create Role, Integration and Route */
-    const apiRole = new Role(this, 'EventBridgeIntegrationRole', {
-      assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
-    });
-
-    apiRole.addToPolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        resources: [eventBus.eventBusArn],
-        actions: ['events:PutEvents'],
-      })
-    );
-
-    const options = {
-      credentialsRole: apiRole,
-      requestParameters: {
-        "integration.request.header.X-Amz-Target": "'AWSEvents.PutEvents'",
-        "integration.request.header.Content-Type": "'application/x-amz-json-1.1'"
-      },
-      requestTemplates: {
-        "application/json": `{"Entries": [{"Source": "com.el.order", "Detail": "$util.escapeJavaScript($input.body)", "Resources": ["resource1", "resource2"], "DetailType": "myDetailType", "EventBusName": "${eventBus.eventBusName}"}]}`
-      },
-      integrationResponses: [{
-        statusCode: "200",
-        responseTemplates: {
-          "application/json": ""
-        }
-      }]
-    }
 
     // const eventbridgeIntegration = new Integration({
     //   type: IntegrationType.AWS,
@@ -134,15 +78,12 @@ export class GatewayStack extends Stack {
       }
     });
 
-    const ordersApi = api.root.addResource("order");
-    // ordersApi.addMethod("POST", eventbridgeIntegration);
-    ordersApi.addMethod("POST", new Integration({
-      type: IntegrationType.AWS,
-      uri: `arn:aws:apigateway:${Aws.REGION}:events:path//`,
-      integrationHttpMethod: "POST",
-      options: options,
-    }),
+    const ordersResource = api.root.addResource("order");
+    // ordersResource.addMethod("POST", eventbridgeIntegration);
+    ordersResource.addMethod("POST", eventBridgeRestApiIntegration,
       {
+        authorizer: auth,
+        authorizationType: AuthorizationType.COGNITO,
         methodResponses: [{ statusCode: "200" }],
         requestModels: { "application/json": orderModel },
         requestValidator: new RequestValidator(this, "orderValidator", {
@@ -151,7 +92,7 @@ export class GatewayStack extends Stack {
         })
       })
 
-    addCorsOptions(ordersApi);
+    addCorsOptions(ordersResource);
     // new CfnRoute(this, 'EventRoute', {
     //   apiId: api.restApiId,
     //   routeKey: 'POST /order',

@@ -5,6 +5,7 @@ import { LambdaLayersStack } from '../src/core/LambdaLayersStack';
 import { CognitoStack } from '../src/support/sso/CognitoStack';
 import { CampaignStack } from '../src/services/campaign-service/infrastructure/campaignStack';
 import { GatewayStack } from '../src/support/gateway/gatewayStack';
+import { EventBridgeStack } from '../src/support/eventbus/EventBridgeStack';
 
 
 
@@ -19,7 +20,9 @@ const campaignStack = new CampaignStack(app, 'compaign-servie', {});
 
 const endpoints = [...campaignStack.lambdas,];
 
-new GatewayStack(app, 'Gateway', endpoints, cognito.userPool, {
+const eventBridge = new EventBridgeStack(app, "myEventBridge", {});
+
+new GatewayStack(app, 'Gateway', endpoints, eventBridge.eventBridgeRestApiIntegration, cognito.userPool, {
 })
 
 
