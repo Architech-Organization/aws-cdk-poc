@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { AuthorizationType, AwsIntegration, CognitoUserPoolsAuthorizer, Integration, IntegrationType, IResource, LambdaIntegration, MockIntegration, PassthroughBehavior, RestApi } from "aws-cdk-lib/aws-apigateway";
+import { AuthorizationType, AwsIntegration, CognitoUserPoolsAuthorizer, Integration, IntegrationType, IResource, JsonSchemaType, JsonSchemaVersion, LambdaIntegration, MockIntegration, Model, PassthroughBehavior, RequestValidator, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { Aws, Stack, StackProps } from 'aws-cdk-lib';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { IUserPool } from 'aws-cdk-lib/aws-cognito';
@@ -111,6 +111,29 @@ export class GatewayStack extends Stack {
     //   options: options,
     // });
 
+    const orderModel = new Model(this, "orderModel", {
+      restApi: api,
+      contentType: "application/json",
+      schema: {
+        schema: JsonSchemaVersion.DRAFT7,
+        title: "Order",
+        type: JsonSchemaType.OBJECT,
+        properties: {
+          "product": {
+            type: JsonSchemaType.STRING,
+            description: "This is the product code"
+          },
+          "quantity": {
+            type: JsonSchemaType.NUMBER,
+            description: "How many item do you need?",
+            minimum: 1,
+            maximum: 5
+          }
+        },
+        required: ["product", "quantity"]
+      }
+    });
+
     const ordersApi = api.root.addResource("order");
     // ordersApi.addMethod("POST", eventbridgeIntegration);
     ordersApi.addMethod("POST", new Integration({
@@ -120,7 +143,12 @@ export class GatewayStack extends Stack {
       options: options,
     }),
       {
-        methodResponses: [{ statusCode: "200" }]
+        methodResponses: [{ statusCode: "200" }],
+        requestModels: { "application/json": orderModel },
+        requestValidator: new RequestValidator(this, "orderValidator", {
+          restApi: api,
+          validateRequestBody: true
+        })
       })
 
     addCorsOptions(ordersApi);
