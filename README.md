@@ -15,7 +15,7 @@
     - validates request payload before forward req to lambda or EventBridge 
   - Create campaign function with a mounted lambda layer (`backend/src/core/LambdaLayersStack.ts`) that contain yup library
   - EventBridge event bus + EventBridge rule that log event data to cloud watch
-  - SSM: used to store lambda layer ARN then referenced in `backend/src/core/MicroserviceStack.ts` abstract class to be mounted inside any function that inherit from the abstract class 
+  - SSM parameter store: used to store lambda layer ARN then referenced in `backend/src/core/MicroserviceStack.ts` abstract class to be mounted inside any function that inherit from the abstract class 
 
 ## How to deploy
 
