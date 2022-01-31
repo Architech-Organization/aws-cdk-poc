@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
 /* eslint-disable import/extensions, import/no-absolute-path */
-import { object, string, YUP_TEST } from '/opt/nodejs/yup-utils';
+import { object, string, YUP_TEST } from '../../../core/layers/yup-utils/nodejs/yup-utils';
 
 const TABLE_NAME = process.env.TABLE_NAME || '';
 const PRIMARY_KEY = process.env.PRIMARY_KEY || '';
