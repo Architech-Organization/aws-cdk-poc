@@ -1,8 +1,10 @@
 import { Construct } from 'constructs';
-import { AuthorizationType, CognitoUserPoolsAuthorizer, Integration, IResource, JsonSchemaType, JsonSchemaVersion, LambdaIntegration, MockIntegration, Model, PassthroughBehavior, RequestValidator, RestApi } from "aws-cdk-lib/aws-apigateway";
-import { Stack, StackProps } from 'aws-cdk-lib';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import { AuthorizationType, AwsIntegration, CognitoUserPoolsAuthorizer, Integration, IntegrationOptions, IntegrationType, IResource, JsonSchemaType, JsonSchemaVersion, LambdaIntegration, MockIntegration, Model, PassthroughBehavior, RequestValidator, RestApi } from "aws-cdk-lib/aws-apigateway";
+import { Aws, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { IUserPool } from 'aws-cdk-lib/aws-cognito';
+import { Effect, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 export class GatewayStack extends Stack {
 
   private readonly endpoints: { lambda: NodejsFunction, path: string, httpMethod: string }[];
@@ -92,6 +94,78 @@ export class GatewayStack extends Stack {
         })
       })
 
+
+    const membersTable = new dynamodb.Table(this, 'members', {
+      partitionKey: { name: 'memberCategory', type: dynamodb.AttributeType.STRING },
+      tableName: 'members',
+      removalPolicy: RemovalPolicy.DESTROY, // NOT recommended for production code
+    });
+
+    const putRole = new Role(this, 'putRole', {
+      assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
+    });
+    const putPolicy = new Policy(this, 'putPolicy', {
+      statements: [
+        new PolicyStatement({
+          actions: ['dynamodb:PutItem'],
+          effect: Effect.ALLOW,
+          resources: [membersTable.tableArn],
+        }),
+      ],
+    });
+    putRole.attachInlinePolicy(putPolicy);
+
+    const errorResponses = [
+      {
+        selectionPattern: '400',
+        statusCode: '400',
+        responseTemplates: {
+          'application/json': `{
+            "error": "Bad input!"
+          }`,
+        },
+      },
+      {
+        selectionPattern: '5\\d{2}',
+        statusCode: '500',
+        responseTemplates: {
+          'application/json': `{
+            "error": "Internal Service Error!"
+          }`,
+        },
+      },
+    ];
+
+    const options: IntegrationOptions = {
+      credentialsRole: putRole,
+      requestParameters: {
+        "integration.request.header.X-Amz-Target": "'DynamoDB_20120810.PutItem'",
+        "integration.request.header.Content-Type": "'application/x-amz-json-1.1'"
+      },
+      requestTemplates: {
+        "application/json": `{ "TableName": "members", "Item": { "memberId": { "S": "$context.requestId" }, "memberCategory": { "S": "$input.path('$.memberCategory')" }, "name": { "S": "$input.path('$.name')" }, "email": { "S": "$input.path('$.email')" } } }`
+      },
+      integrationResponses: [
+        {
+          statusCode: '201',
+          responseTemplates: {
+            'application/json': `{
+              "requestId": "$context.requestId"
+            }`,
+          },
+        },
+        ...errorResponses,
+      ],
+    }
+
+    const membersResource = api.root.addResource("members");
+    membersResource.addMethod("POST", new AwsIntegration({
+      action: 'PutItem',
+      service: 'dynamodb',
+      options: options
+    }), { methodResponses: [{ statusCode: "201" }] });
+
+
     addCorsOptions(ordersResource);
     // new CfnRoute(this, 'EventRoute', {
     //   apiId: api.restApiId,
@@ -99,6 +173,14 @@ export class GatewayStack extends Stack {
     //   target: `integrations/${eventbridgeIntegration.ref}`,
     // });
 
+    /**
+     * new Integration({
+      type: IntegrationType.AWS,
+      uri: `arn:aws:apigateway:${Aws.REGION}:dynamodb:path//`,
+      integrationHttpMethod: "PutItem",
+      options: options,
+    })
+     */
 
 
   }
