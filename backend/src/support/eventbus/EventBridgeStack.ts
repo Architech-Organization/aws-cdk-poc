@@ -1,4 +1,4 @@
-import { Aws, Stack, StackProps } from "aws-cdk-lib";
+import { Aws, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
 import { Integration, IntegrationType } from "aws-cdk-lib/aws-apigateway";
 import { EventBus, Rule } from "aws-cdk-lib/aws-events";
 import { CloudWatchLogGroup } from "aws-cdk-lib/aws-events-targets";
@@ -29,6 +29,7 @@ export class EventBridgeStack extends Stack {
 
     const logGroup = new LogGroup(this, 'EventLogGroup', {
       logGroupName: '/aws/events/MyEventBus',
+      removalPolicy: RemovalPolicy.DESTROY,// NOT recommended for production code
     });
 
     eventLoggerRule.addTarget(new CloudWatchLogGroup(logGroup));

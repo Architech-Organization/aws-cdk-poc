@@ -16,6 +16,9 @@ export class GatewayStack extends Stack {
     // Create an API Gateway resource for each of the CRUD operations
     const api = new RestApi(this, 'elBackendApi', {
       restApiName: 'el Service',
+      deployOptions: {
+        tracingEnabled: true,
+      }
     });
 
     // api.addUsagePlan('UsagePlan', {
@@ -80,7 +83,7 @@ export class GatewayStack extends Stack {
       }
     });
 
-    const ordersResource = api.root.addResource("order");
+    const ordersResource = api.root.addResource("orders");
     // ordersResource.addMethod("POST", eventbridgeIntegration);
     ordersResource.addMethod("POST", eventBridgeRestApiIntegration,
       {
@@ -143,7 +146,15 @@ export class GatewayStack extends Stack {
         "integration.request.header.Content-Type": "'application/x-amz-json-1.1'"
       },
       requestTemplates: {
-        "application/json": `{ "TableName": "members", "Item": { "memberId": { "S": "$context.requestId" }, "memberCategory": { "S": "$input.path('$.memberCategory')" }, "name": { "S": "$input.path('$.name')" }, "email": { "S": "$input.path('$.email')" } } }`
+        "application/json": `{
+          "TableName": "members",
+          "Item": {
+            "memberId": { "S": "$context.requestId" },
+            "memberCategory": { "S": "$input.path('$.memberCategory')" }, 
+            "name": { "S": "$input.path('$.name')" }, 
+            "email": { "S": "$input.path('$.email')" } 
+          } 
+        }`
       },
       integrationResponses: [
         {
@@ -163,7 +174,11 @@ export class GatewayStack extends Stack {
       action: 'PutItem',
       service: 'dynamodb',
       options: options
-    }), { methodResponses: [{ statusCode: "201" }] });
+    }), {
+      authorizer: auth,
+      authorizationType: AuthorizationType.COGNITO,
+      methodResponses: [{ statusCode: "201" }]
+    });
 
 
     addCorsOptions(ordersResource);

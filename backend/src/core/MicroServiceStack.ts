@@ -1,5 +1,5 @@
 import { Stack } from "aws-cdk-lib";
-import { Code, LayerVersion, Runtime } from "aws-cdk-lib/aws-lambda";
+import { Code, LayerVersion, Runtime, Tracing } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction, NodejsFunctionProps } from "aws-cdk-lib/aws-lambda-nodejs";
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 
@@ -22,6 +22,7 @@ export abstract class MicroServiceStack extends Stack {
 
         depsLockFilePath: join(__dirname, '../../../package-lock.json'),
         runtime: Runtime.NODEJS_14_X,
+        tracing: Tracing.ACTIVE
     }
 
     registerFunctionEndpoint = (entry: string, path: string, httpMethod: string, environment?: any): NodejsFunction => {

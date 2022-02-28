@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { aws_cognito as cognito, Duration, Stack, StackProps } from 'aws-cdk-lib';
+import { aws_cognito as cognito, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { IUserPool } from 'aws-cdk-lib/aws-cognito';
 
 export class CognitoStack extends Stack {
@@ -12,6 +12,7 @@ export class CognitoStack extends Stack {
 
         this.userPool = new cognito.UserPool(this, 'eluserpool', {
             userPoolName: 'el-userpool',
+            removalPolicy: RemovalPolicy.DESTROY,// NOT recommended for production code
 
             signInAliases: {
                 username: true,
